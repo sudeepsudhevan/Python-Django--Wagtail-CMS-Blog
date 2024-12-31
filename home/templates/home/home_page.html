@@ -1,27 +1,17 @@
 {% extends "base.html" %}
-{% load wagtailcore_tags wagtailimages_tags %}
 
 {% block content %}
-    <h1>{{ page.title }}</h1>
-    <h3>{{ page.subtitle }}</h3>
 
-    {% if page.body %}
-        {{ page.body|richtext }}
+    {% if page.custom_documents %}
+
+        <h1>This is the download url</h1>
+        {{ page.custom_documents.url }}
+
+        <a href="{{ page.custom_documents.url }}" download>Download</a>
+
+        {{ page.custom_documents.title }}
+
+        {{ page.custom_documents.description }}
     {% endif %}
-
-    <hr>
-    <hr>
-    <hr>
-    <hr>
-
-    Image Stuff below: <br>
-   
-    {% image page.image fill-150x150-c100 format-jpeg %}
-    {% image page.image width-400 %}
-    {% image page.image width-400 format-avif-lossless %}
-    {% image page.image width-400 format-webp-lossless %}
     
-    {% image page.image fill-90x200 as custom_img %}
-    <img src="{{ custom_img.url }}" width="90" height="200">
-
 {% endblock content %}
