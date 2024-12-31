@@ -10,6 +10,7 @@ from wagtail.documents import get_document_model
 class HomePage(Page):
 
     #template = "home/home_page.html" # look  for app_name/your_class_name.html
+    max_count = 1
 
     subtitle = models.CharField(max_length=100, blank=True, null=True)
     body = RichTextField(blank=True)
