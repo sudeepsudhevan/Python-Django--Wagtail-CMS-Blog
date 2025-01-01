@@ -350,3 +350,81 @@ class BlogDetail(Page):
         
         return None
 ```
+### Internal and External Links in a WagTail page
+`home/models.py`
+```py
+from django.db import models
+from django.core.exceptions import ValidationError
+
+from wagtail.models import Page
+from wagtail.admin.panels import FieldPanel
+@@ -33,9 +34,44 @@ class HomePage(Page):
+        null=True,
+    )
+
+    # For Internal Links (provided by Wagtail)
+    cta_url = models.ForeignKey(
+        'wagtailcore.Page',     # use 'blogpages.BlogDetail' to link to a specific page
+        on_delete=models.SET_NULL,
+        related_name="+",
+        blank=True,
+        null=True,
+    )
+    # For External Links (provided by Django)
+    cta_external_url = models.URLField(blank=True, null=True)
+    content_panels = Page.content_panels + [
+        FieldPanel("subtitle", read_only=True), # use read_only=True to make the field read-only
+        FieldPanel("cta_url"),
+        FieldPanel("cta_external_url"), 
+        FieldPanel("body"),
+        FieldPanel("image"),
+        FieldPanel("custom_documents"),
+    ]
+
+
+    @property
+    def get_cta_url(self):
+        if self.cta_url:
+            return self.cta_url.url
+        elif self.cta_external_url: 
+            return self.cta_external_url
+        else:
+            return None
+
+
+    def clean(self):
+        super().clean()
+        if self.cta_url and self.cta_external_url:
+            raise ValidationError(
+                {
+                    "cta_url":"You can only one CTA link",
+                    "cta_external_url":"You can only one CTA link",
+                }
+            )
+```
+`home/templates/home/home_page.html`
+```html
+{% block content %}
+
+{% if page.cta_url or page.cta_external_url %}
+    {% if page.cta_url %}
+        <a href="{{ page.cta_url.url }}">{{ page.cta_url.title }}</a>
+    {% else %}
+        <a href="{{ page.cta_external_url }}">Some external link</a>
+    {% endif %}
+{% endif %}
+{% if page.get_cta_url %}
+    {{ page.get_cta_url }}
+{% endif %}
+{% comment %}
+    {% if page.custom_documents %}
+
+        <h1>This is the download url</h1>
+@@ -13,5 +28,6 @@ <h1>This is the download url</h1>
+
+        {{ page.custom_documents.description }}
+    {% endif %}
+{% endcomment %}
+
+{% endblock content %}
+```
