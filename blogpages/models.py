@@ -26,6 +26,8 @@ class BlogIndex(Page):
         return context
 
 
+from django.core.exceptions import ValidationError
+
 class BlogDetail(Page):
     # A blog entry page
 
@@ -48,3 +50,22 @@ class BlogDetail(Page):
         FieldPanel('body'),
         FieldPanel('image'),
     ]
+
+    def clean(self):
+        super().clean()
+
+        errors = {}
+
+        if 'blog' in self.title.lower():
+            errors['title'] = 'Title should not contain the word "blog"'
+        
+        if 'blog' in self.subtitle.lower():
+            errors['subtitle'] = 'Subtitle should not contain the word "blog"'
+
+        if 'blog' in self.slug.lower():
+            errors['slug'] = 'Slug should not contain the word "blog"'
+
+        if errors:
+            raise ValidationError(errors)
+        
+        return None
