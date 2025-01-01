@@ -140,3 +140,89 @@ class HomePage(Page):
     <img src="{{ custom_img.url }}" width="90" height="200">
 {% endblock content %}
 ```
+## Create a Custom File Handling
+### 1. Create App
+```
+python manage.py startapp documents
+```
+### 2. Edit models.py
+`documents/models.py`
+```py
+from django.db import models
+from wagtail.documents.models import AbstractDocument, Document
+
+class CustomDocument(AbstractDocument):
+    description = models.CharField(blank=True, max_length=255)
+    admin_form_fields = Document.admin_form_fields + (
+        "description",
+    )
+```
+### 3. Edit base.py
+`blog/settings/base.py`
+```py
+INSTALLED_APPS = [
+    "home",
+    "search",
+    "images",
+    "documents", # Add documents
+
+    "wagtail.contrib.forms",
+    "wagtail.contrib.redirects",
+
+....
+....
+....
+
+
+
+WAGTAILIMAGES_IMAGE_MODEL = "images.CustomImage"
+
+WAGTAILIMAGES_EXTENSIONS = ["jpg", "jpeg", "png", "gif", "webp", "svg"]
+WAGTAILDOCS_DOCUMENT_MODEL = "documents.CustomDocument"
+```
+### 4. Edit `home/models.py` for using documents in home page
+`home/models.py`
+```py
+from wagtail.admin.panels import FieldPanel
+from wagtail.fields import RichTextField
+from wagtail.images import get_image_model
+from wagtail.documents import get_document_model
+
+
+class HomePage(Page):
+    ....
+    ....
+    ....
+        null=True,
+    )
+
+    custom_documents = models.ForeignKey(
+        get_document_model(),
+        #"wagtaildocs.Document", can be used as string instead
+        on_delete=models.SET_NULL,
+        related_name="+",
+        blank=True,
+        null=True,
+    )
+    content_panels = Page.content_panels + [
+        FieldPanel("subtitle", read_only=True), # use read_only=True to make the field read-only
+        FieldPanel("body"),
+        FieldPanel("image"),
+        FieldPanel("custom_documents"),
+    ]
+```
+### 5. Edit home_page html template
+`home/templates/home/home_page.html`
+```html
+{% extends "base.html" %}
+
+{% block content %}
+
+    {% if page.custom_documents %}
+
+        <h1>This is the download url</h1>
+        {{ page.custom_documents.url }}
+
+        <a href="{{ page.custom_documents.url }}" download>Download</a>
+        {{ page.custom_documents.title }}
+```
