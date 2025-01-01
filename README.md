@@ -284,3 +284,5 @@ INSTALLED_APPS = [
 {{ page.body|richtext }}
 {% endblock %}
 ```
+## Limiting Blog page Creation
+[Commit #9](https://github.com/sudeepsudhevan/Python-Django--Wagtail-CMS-Blog/commit/b404b381b32a8f472fe03030b9709bee6eb2987d)
