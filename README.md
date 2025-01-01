@@ -286,6 +286,67 @@ INSTALLED_APPS = [
 ```
 ## Limiting Blog page Creation
 [Commit #9](https://github.com/sudeepsudhevan/Python-Django--Wagtail-CMS-Blog/commit/b404b381b32a8f472fe03030b9709bee6eb2987d)
+```
+class BlogIndex(Page):
+    # A listing page for blog entries(child pages)
+
+    # max_count = 1
+    parent_page_types = ['home.HomePage']
+    subpage_types = ['blogpages.BlogDetail']
+```
 
 ## Understand wagtail page context
+`blogpages/models.py`
 [Commit #10](https://github.com/sudeepsudhevan/Python-Django--Wagtail-CMS-Blog/commit/9ee52865e7da7af188ad4ea5e9e7523a8254217b)
+```py
+from wagtail.models import Page
+from wagtail.fields import RichTextField
+from wagtail.admin.panels import FieldPanel
+from wagtail.images import get_image_model
+
+class BlogIndex(Page):
+    # A listing page for blog entries(child pages)
+
+    max_count = 1
+    parent_page_types = ['home.HomePage']
+    subpage_types = ['blogpages.BlogDetail']
+
+@@ -19,6 +20,11 @@ class BlogIndex(Page):
+        FieldPanel('body'),
+    ]
+
+    def get_context(self, request):        # Context function
+        context = super().get_context(request)
+        context['blogpages'] = BlogDetail.objects.live().public()
+        return context
+```
+### Add Custom page validation
+`blogpages/models.py`
+```py
+from django.core.exceptions import ValidationError
+class BlogDetail(Page):
+    # A blog entry page
+
+        .....
+        .....
+        .....
+        FieldPanel('body'),
+        FieldPanel('image'),
+    ]
+
+    # Use this function
+    def clean(self):
+        super().clean()
+        errors = {}
+        if 'blog' in self.title.lower():
+            errors['title'] = 'Title should not contain the word "blog"'
+        
+        if 'blog' in self.subtitle.lower():
+            errors['subtitle'] = 'Subtitle should not contain the word "blog"'
+        if 'blog' in self.slug.lower():
+            errors['slug'] = 'Slug should not contain the word "blog"'
+        if errors:
+            raise ValidationError(errors)
+        
+        return None
+```
