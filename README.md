@@ -226,3 +226,61 @@ class HomePage(Page):
         <a href="{{ page.custom_documents.url }}" download>Download</a>
         {{ page.custom_documents.title }}
 ```
+## Create a Custom Page
+### 1. Create App
+```
+python manage.py startapp blogpages
+```
+### 2. Edit models.py
+`blogpages/models.py`
+```py
+from django.db import models
+from wagtail.models import Page
+from wagtail.fields import RichTextField
+from wagtail.admin.panels import FieldPanel
+class BlogIndex(Page):
+    # A listing page for blog entries(child pages)
+    subtitle = models.CharField(max_length=100, blank=True)
+    body = RichTextField(blank=True)
+    content_panels = Page.content_panels + [
+        FieldPanel('subtitle'),
+        FieldPanel('body'),
+    ]
+class BlogDetail(Page):
+    # A blog entry page
+    subtitle = models.CharField(max_length=100, blank=True)
+    body = RichTextField(blank=True)
+    content_panels = Page.content_panels + [
+        FieldPanel('subtitle'),
+        FieldPanel('body'),
+    ]
+```
+### 3. Edit base.py
+`blog/settings/base.py`
+```py
+INSTALLED_APPS = [
+    "home",
+    "search",
+    "images",
+    "documents",
+    "blogpages",
+
+    "wagtail.contrib.forms",
+    "wagtail.contrib.redirects",
+
+....
+....
+....
+```
+### 4. Add a Blog Index html page
+`blogpages/templates/blogpages/blog_index.html`
+```html
+{% extends "base.html" %}
+{% load wagtailcore_tags %}
+{% block content %}
+<h1>{{ page.title }}</h1>
+<h3>{{ page.subtitle }}</h3>
+<h4>Body is below:</h4>
+{{ page.body|richtext }}
+{% endblock %}
+```
