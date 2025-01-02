@@ -15,19 +15,5 @@
     {{ page.get_cta_url }}
 {% endif %}
 
-
-{% comment %}
-    {% if page.custom_documents %}
-
-        <h1>This is the download url</h1>
-        {{ page.custom_documents.url }}
-
-        <a href="{{ page.custom_documents.url }}" download>Download</a>
-
-        {{ page.custom_documents.title }}
-
-        {{ page.custom_documents.description }}
-    {% endif %}
-{% endcomment %}
     
 {% endblock content %}

@@ -2,6 +2,15 @@
 {% load wagtailcore_tags wagtailimages_tags %}
 
 {% block content %}
+<style>
+    .richtext .fill-150x150 {
+        border: 10px solid #f0f0f0;
+    }
+
+    .richtext{
+        color: #6c2d2d;
+    }
+</style>
 
 <h1>{{ page.title }}</h1>
 <h3>{{ page.subtitle }}</h3>
@@ -9,4 +18,11 @@
 {% if page.image %}
     {% image page.image fill-320x320 %}
 {% endif %}
+
+<h4>Body is below:</h4>
+<div class="richtext">
+    {{ page.body|richtext }}
+</div>
+
+<hr>
 {% endblock %}

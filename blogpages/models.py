@@ -35,7 +35,10 @@ class BlogDetail(Page):
     subpage_types = []
 
     subtitle = models.CharField(max_length=100, blank=True)
-    body = RichTextField(blank=True)
+    body = RichTextField(
+        blank=True,
+        features=['h3','code','bold','italic','link','ol','ul','image']
+    )
 
     image = models.ForeignKey(
         get_image_model(),
