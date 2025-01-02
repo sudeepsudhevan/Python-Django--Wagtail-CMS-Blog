@@ -5,6 +5,19 @@ from wagtail.fields import RichTextField
 from wagtail.admin.panels import FieldPanel
 from wagtail.images import get_image_model
 
+from django.core.exceptions import ValidationError
+from modelcluster.fields import ParentalKey
+from modelcluster.contrib.taggit import ClusterTaggableManager
+from taggit.models import TaggedItemBase
+
+
+class BlogPageTag(TaggedItemBase):
+    content_object = ParentalKey(
+        'blogpages.BlogDetail',
+        related_name='tagged_items',
+        on_delete=models.CASCADE
+    )
+
 class BlogIndex(Page):
     # A listing page for blog entries(child pages)
 
@@ -26,8 +39,6 @@ class BlogIndex(Page):
         return context
 
 
-from django.core.exceptions import ValidationError
-
 class BlogDetail(Page):
     # A blog entry page
 
@@ -40,6 +51,8 @@ class BlogDetail(Page):
         features=['h3','code','bold','italic','link','ol','ul','image']
     )
 
+    tags = ClusterTaggableManager(through=BlogPageTag, blank=True)
+
     image = models.ForeignKey(
         get_image_model(),
         null=True,
@@ -50,8 +63,9 @@ class BlogDetail(Page):
 
     content_panels = Page.content_panels + [
         FieldPanel('subtitle'),
+        FieldPanel('tags'),
         FieldPanel('body'),
-        FieldPanel('image'),
+        FieldPanel('image'), 
     ]
 
     def clean(self):
