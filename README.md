@@ -286,7 +286,7 @@ INSTALLED_APPS = [
 ```
 ## Limiting Blog page Creation
 [Commit #9](https://github.com/sudeepsudhevan/Python-Django--Wagtail-CMS-Blog/commit/b404b381b32a8f472fe03030b9709bee6eb2987d)
-```
+```py
 class BlogIndex(Page):
     # A listing page for blog entries(child pages)
 
@@ -427,4 +427,25 @@ from wagtail.admin.panels import FieldPanel
 {% endcomment %}
 
 {% endblock content %}
+```
+### Wagtail Richtext - limiting features
+```py
+body = RichTextField(
+        blank=True,
+        features=['h3','code','bold','italic','link','ol','ul','image']
+    )
+```
+Custom image format in rich text
+create file `images/image_formats.py` 
+```py
+from wagtail.images.formats import Format,register_image_format
+
+register_image_format(
+    Format(
+        'thumbnail',
+        'richtext-image thumbnail-150',
+        'fill-150x150',
+        'width-150',
+    )
+)
 ```
