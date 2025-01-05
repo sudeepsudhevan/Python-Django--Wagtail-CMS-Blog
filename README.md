@@ -449,3 +449,59 @@ register_image_format(
     )
 )
 ```
+### Wagtail Streamfield
+`blogpages/model.py`
+```py
+from wagtail.fields import StreamField
+from wagtail.blocks import TextBlock
+from wagtail.images.blocks import ImageChooserBlock
+
+class BlogPageTag(TaggedItemBase):
+    content_object = ParentalKey(
+@@ -46,13 +49,22 @@ 
+    subpage_types = []
+
+    subtitle = models.CharField(max_length=100, blank=True)
+    tags = ClusterTaggableManager(through=BlogPageTag, blank=True)
+    body = StreamField(
+        [
+            ('text', TextBlock()),
+            ('image', ImageChooserBlock()),
+        ],
+        block_counts={
+            'text': {'min_num': 1},
+            'image': {'max_num': 1},
+        },
+        use_json_field=True,
+        blank=True,
+        null=True,
+    )
+
+    image = models.ForeignKey(
+        get_image_model(),
+        null=True,
+@@ -62,10 +74,10 @@ 
+    )
+
+    content_panels = Page.content_panels + [
+        # FieldPanel('subtitle'),
+        # FieldPanel('tags'),
+        # FieldPanel('image'),
+        FieldPanel('body'), 
+    ]
+```
+```html
+{% extends "base.html" %}
+{% load wagtailcore_tags wagtailimages_tags %}
+
+{% block content %}
+    {% for block in page.body %}
+        {% if block.block_type  == 'text' %}
+            {{ block.value }}
+        {% elif block.block_type == 'image' %}
+            {% image block.value width-200 %}
+        {% endif %}
+    {% endfor %}
+
+{% endblock %}
+```
