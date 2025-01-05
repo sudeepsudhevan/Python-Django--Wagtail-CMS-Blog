@@ -4,9 +4,20 @@
 {% block content %}
     {% for block in page.body %}
         {% if block.block_type  == 'text' %}
-            {{ block.value }}
+            {% comment %} {{ block.value }} {% endcomment %}
         {% elif block.block_type == 'image' %}
-            {% image block.value width-200 %}
+            {% comment %} {% image block.value width-200 %} {% endcomment %} 
+        {% elif block.block_type == 'carousel' %}
+            {% for slide in block.value %}
+                {% if slide.block_type == 'image' %}
+                    {% image slide.value width-200 %}
+                {% elif slide.block_type == 'quotation' %}
+                    <blockquote>
+                        <p>{{ slide.value.text }}</p>
+                        <cite>{{ slide.value.author }}</cite>
+                    </blockquote>
+                {% endif %}
+            {% endfor %}
         {% endif %}
     {% endfor %}
 

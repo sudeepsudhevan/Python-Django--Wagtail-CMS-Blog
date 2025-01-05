@@ -11,7 +11,7 @@ from modelcluster.contrib.taggit import ClusterTaggableManager
 from taggit.models import TaggedItemBase
 
 from wagtail.fields import StreamField
-from wagtail.blocks import TextBlock
+from wagtail.blocks import TextBlock, StructBlock, StreamBlock
 from wagtail.images.blocks import ImageChooserBlock
 
 class BlogPageTag(TaggedItemBase):
@@ -55,6 +55,17 @@ class BlogDetail(Page):
         [
             ('text', TextBlock()),
             ('image', ImageChooserBlock()),
+            ('carousel', StreamBlock(
+                [
+                    ('image', ImageChooserBlock()),
+                    ('quotation', StructBlock(
+                        [
+                            ('text', TextBlock()),
+                            ('author', TextBlock()),
+                        ],
+                    )),
+                ]
+            )),
         ],
         block_counts={
             'text': {'min_num': 1},
