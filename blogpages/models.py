@@ -11,41 +11,59 @@ from modelcluster.contrib.taggit import ClusterTaggableManager
 from taggit.models import TaggedItemBase
 
 from wagtail.fields import StreamField
-from wagtail.blocks import TextBlock, StructBlock, StreamBlock
+from wagtail.blocks import (
+    TextBlock,
+    StructBlock,
+    StreamBlock,
+    PageChooserBlock,
+    RichTextBlock,
+    CharBlock,
+)
 from wagtail.images.blocks import ImageChooserBlock
+
+from wagtail.documents.blocks import DocumentChooserBlock
+from wagtail.snippets.blocks import SnippetChooserBlock
+
+
+class Author(models.Model):
+    name = models.CharField(max_length=100)
+    bio = models.TextField()
+
+    def __str__(self):
+        return self.name
+
 
 class BlogPageTag(TaggedItemBase):
     content_object = ParentalKey(
-        'blogpages.BlogDetail',
-        related_name='tagged_items',
-        on_delete=models.CASCADE
+        "blogpages.BlogDetail", related_name="tagged_items", on_delete=models.CASCADE
     )
+
 
 class BlogIndex(Page):
     # A listing page for blog entries(child pages)
 
     max_count = 1
-    parent_page_types = ['home.HomePage']
-    subpage_types = ['blogpages.BlogDetail']
+    parent_page_types = ["home.HomePage"]
+    subpage_types = ["blogpages.BlogDetail"]
 
     subtitle = models.CharField(max_length=100, blank=True)
     body = RichTextField(blank=True)
 
     content_panels = Page.content_panels + [
-        FieldPanel('subtitle'),
-        FieldPanel('body'),
+        FieldPanel("subtitle"),
+        FieldPanel("body"),
     ]
 
     def get_context(self, request):
         context = super().get_context(request)
-        context['blogpages'] = BlogDetail.objects.live().public()
+        context["blogpages"] = BlogDetail.objects.live().public()
         return context
 
 
 class BlogDetail(Page):
     # A blog entry page
 
-    parent_page_types = ['blogpages.BlogIndex']
+    parent_page_types = ["blogpages.BlogIndex"]
     subpage_types = []
 
     subtitle = models.CharField(max_length=100, blank=True)
@@ -53,23 +71,40 @@ class BlogDetail(Page):
 
     body = StreamField(
         [
-            ('text', TextBlock()),
-            ('image', ImageChooserBlock()),
-            ('carousel', StreamBlock(
-                [
-                    ('image', ImageChooserBlock()),
-                    ('quotation', StructBlock(
-                        [
-                            ('text', TextBlock()),
-                            ('author', TextBlock()),
-                        ],
-                    )),
-                ]
-            )),
+            ("image", ImageChooserBlock()),
+            ("Doc", DocumentChooserBlock()),
+            ("page", PageChooserBlock(required=False, page_type="home.HomePage")),
+            ("author", SnippetChooserBlock("blogpages.Author")),
+            # ('text', TextBlock()),
+            # ('carousel', StreamBlock(
+            #     [
+            #         ('image', ImageChooserBlock()),
+            #         ('quotation', StructBlock(
+            #             [
+            #                 ('text', TextBlock()),
+            #                 ('author', TextBlock()),
+            #             ],
+            #         )),
+            #     ]
+            # )),
+            (
+                "call_to_action_1",
+                StructBlock(
+                    [
+                        (
+                            "text",
+                            RichTextBlock(features=["bold", "italic"], required=True),
+                        ),
+                        ("page", PageChooserBlock()),
+                        ("button_text", CharBlock(max_length=100, required=False)),
+                    ],
+                    label='CTA #1',
+                ),
+            ),
         ],
         block_counts={
-            'text': {'min_num': 1},
-            'image': {'max_num': 1},
+            # 'text': {'min_num': 1},
+            "image": {"max_num": 1},
         },
         use_json_field=True,
         blank=True,
@@ -81,14 +116,14 @@ class BlogDetail(Page):
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
-        related_name='+'
+        related_name="+",
     )
 
     content_panels = Page.content_panels + [
         # FieldPanel('subtitle'),
         # FieldPanel('tags'),
         # FieldPanel('image'),
-        FieldPanel('body'), 
+        FieldPanel("body"),
     ]
 
     def clean(self):
@@ -96,16 +131,16 @@ class BlogDetail(Page):
 
         errors = {}
 
-        if 'blog' in self.title.lower():
-            errors['title'] = 'Title should not contain the word "blog"'
-        
-        if 'blog' in self.subtitle.lower():
-            errors['subtitle'] = 'Subtitle should not contain the word "blog"'
+        if "blog" in self.title.lower():
+            errors["title"] = 'Title should not contain the word "blog"'
 
-        if 'blog' in self.slug.lower():
-            errors['slug'] = 'Slug should not contain the word "blog"'
+        if "blog" in self.subtitle.lower():
+            errors["subtitle"] = 'Subtitle should not contain the word "blog"'
+
+        if "blog" in self.slug.lower():
+            errors["slug"] = 'Slug should not contain the word "blog"'
 
         if errors:
             raise ValidationError(errors)
-        
+
         return None
