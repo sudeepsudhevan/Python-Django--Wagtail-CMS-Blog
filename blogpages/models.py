@@ -61,6 +61,7 @@ class BlogIndex(Page):
         context["blogpages"] = BlogDetail.objects.live().public()
         return context
 
+from blocks import blocks as custom_blocks
 
 class BlogDetail(Page):
     # A blog entry page
@@ -73,50 +74,15 @@ class BlogDetail(Page):
 
     body = StreamField(
         [
-            ('info',StaticBlock(
-                admin_text="This is a content divider",
-            )),
-            ("faq",ListBlock(
-                StructBlock(
-                    [
-                        ('question', CharBlock()),
-                        ('answer', RichTextBlock(features=["bold", "italic"])),
-                    ],
-                ),
-                min_num=1,
-                max_num=5,
-                label='Frequently Asked Questions',
-            )),
-            ("image", ImageChooserBlock()),
+            ('info',custom_blocks.InfoBlock()),
+            ("faq", custom_blocks.FAQListBlock()),
+            ("image", custom_blocks.ImageBlock()),
             ("Doc", DocumentChooserBlock()),
             ("page", PageChooserBlock(required=False, page_type="home.HomePage")),
             ("author", SnippetChooserBlock("blogpages.Author")),
-            ('text', TextBlock()),
-            ('carousel', StreamBlock(
-                [
-                    ('image', ImageChooserBlock()),
-                    ('quotation', StructBlock(
-                        [
-                            ('text', TextBlock()),
-                            ('author', TextBlock()),
-                        ],
-                    )),
-                ]
-            )),
-            (
-                "call_to_action_1",
-                StructBlock(
-                    [
-                        (
-                            "text",
-                            RichTextBlock(features=["bold", "italic"], required=True),
-                        ),
-                        ("page", PageChooserBlock()),
-                        ("button_text", CharBlock(max_length=100, required=False)),
-                    ],
-                    label='CTA #1',
-                ),
-            ),
+            ('text', custom_blocks.TextBlock()),
+            ('carousel', custom_blocks.CarouselBlock()),
+            ("call_to_action_1",custom_blocks.CallToAction1()),
         ],
         block_counts={
             # 'text': {'min_num': 1},
