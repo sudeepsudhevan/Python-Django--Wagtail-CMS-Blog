@@ -2,17 +2,7 @@
 {% load wagtailcore_tags wagtailimages_tags %}
 
 {% block content %}
-    {% for block in page.body %}
-        {% if block.block_type == 'info' %}
-        <div class="info-block" style="background-color: rgb(10, 10, 10); color: white; font-size: 24px; padding: 30px;text-align: center;">
-            Danger Zone
-        </div>
-        {% elif block.block_type == 'faq' %}
-            {% for faq in block.value %}
-                <h2>{{ faq.question }}</h2>
-                {{ faq.answer|richtext }}
-            {% endfor %}
-        {% endif %}
-    {% endfor %}
-            
+    
+        {% include_block page.body %}
+          
 {% endblock %}

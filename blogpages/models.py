@@ -12,16 +12,9 @@ from taggit.models import TaggedItemBase
 
 from wagtail.fields import StreamField
 from wagtail.blocks import (
-    TextBlock,
-    StructBlock,
-    StreamBlock,
     PageChooserBlock,
-    RichTextBlock,
-    CharBlock,
-    StaticBlock,
-    ListBlock,
 )
-from wagtail.images.blocks import ImageChooserBlock
+
 
 from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.snippets.blocks import SnippetChooserBlock
