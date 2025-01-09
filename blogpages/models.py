@@ -18,6 +18,8 @@ from wagtail.blocks import (
     PageChooserBlock,
     RichTextBlock,
     CharBlock,
+    StaticBlock,
+    ListBlock,
 )
 from wagtail.images.blocks import ImageChooserBlock
 
@@ -71,22 +73,36 @@ class BlogDetail(Page):
 
     body = StreamField(
         [
+            ('info',StaticBlock(
+                admin_text="This is a content divider",
+            )),
+            ("faq",ListBlock(
+                StructBlock(
+                    [
+                        ('question', CharBlock()),
+                        ('answer', RichTextBlock(features=["bold", "italic"])),
+                    ],
+                ),
+                min_num=1,
+                max_num=5,
+                label='Frequently Asked Questions',
+            )),
             ("image", ImageChooserBlock()),
             ("Doc", DocumentChooserBlock()),
             ("page", PageChooserBlock(required=False, page_type="home.HomePage")),
             ("author", SnippetChooserBlock("blogpages.Author")),
-            # ('text', TextBlock()),
-            # ('carousel', StreamBlock(
-            #     [
-            #         ('image', ImageChooserBlock()),
-            #         ('quotation', StructBlock(
-            #             [
-            #                 ('text', TextBlock()),
-            #                 ('author', TextBlock()),
-            #             ],
-            #         )),
-            #     ]
-            # )),
+            ('text', TextBlock()),
+            ('carousel', StreamBlock(
+                [
+                    ('image', ImageChooserBlock()),
+                    ('quotation', StructBlock(
+                        [
+                            ('text', TextBlock()),
+                            ('author', TextBlock()),
+                        ],
+                    )),
+                ]
+            )),
             (
                 "call_to_action_1",
                 StructBlock(
