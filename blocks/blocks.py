@@ -59,12 +59,27 @@ class CallToAction1(blocks.StructBlock):
     page = blocks.PageChooserBlock()
     button_text = blocks.CharBlock(max_length=100, required=False)
 
+
+    def get_context(self, value, parent_context=None):
+        context = super().get_context(value, parent_context)
+        page = value.get('page')
+        button_text = value.get('button_text')
+        context['button_copy'] = button_text if button_text else f'Go to {page.title}'
+        return context
+
     class Meta:
         label = 'CTA #1'
         template = 'blocks/call_to_action_1.html'
 
 
 class ImageBlock(ImageChooserBlock):
+
+    def get_context(self, value, parent_context=None):
+        from blogpages.models import BlogDetail
+        context = super().get_context(value, parent_context)
+        context['blog_posts'] = BlogDetail.objects.all().live().public()
+        return context
+
     class Meta:
         template = 'blocks/image_block.html'
         group = "Standalone blocks"

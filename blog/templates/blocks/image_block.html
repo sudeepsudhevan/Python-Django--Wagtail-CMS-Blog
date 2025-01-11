@@ -1,3 +1,11 @@
 {% load wagtailimages_tags %}
 
 {% image self fill-400x200 %}
+
+<ul>
+    {% for page in blog_posts %}
+        <li>
+            <a href="{{ page.url }}">{{ page.title }}</a>
+        </li>
+    {% endfor %}
+</ul>
