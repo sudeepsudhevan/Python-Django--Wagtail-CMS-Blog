@@ -1,8 +1,9 @@
 {% extends "base.html" %}
+{% load wagtailimages_tags %}
 
 {% block content %}
 
-
+{% comment %}
 {% if page.cta_url or page.cta_external_url %}
     {% if page.cta_url %}
         <a href="{{ page.cta_url.url }}">{{ page.cta_url.title }}</a>
@@ -14,6 +15,12 @@
 {% if page.get_cta_url %}
     {{ page.get_cta_url }}
 {% endif %}
+
+{% endcomment %}
+
+{% for orderable_object in page.gallery_images.all %}
+    {% image orderable_object.image fill-150x150-c100 format-jpeg %}
+{% endfor %}
 
     
 {% endblock content %}
