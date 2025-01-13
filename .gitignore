@@ -3,6 +3,7 @@
 /static/
 *.sqlite3
 
+.cache/
 # Python and others
 __pycache__
 *.pyc

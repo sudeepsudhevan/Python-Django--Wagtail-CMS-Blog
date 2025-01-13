@@ -1,8 +1,16 @@
 {% extends "base.html" %}
-{% load wagtailcore_tags wagtailimages_tags %}
+{% load wagtailcore_tags wagtailimages_tags wagtail_cache %}
 
 {% block content %}
-    
-        {% include_block page.body %}
+
+        
+        {% wagtailpagecache 500 "title-cache" %}
+                <h1>{{ page.title }}</h1>
+        {% endwagtailpagecache %}
+        
+        {% wagtailpagecache 500 "StreamFields"  %}
+                {% include_block page.body %}
+        {% endwagtailpagecache %}
+        
           
 {% endblock %}
