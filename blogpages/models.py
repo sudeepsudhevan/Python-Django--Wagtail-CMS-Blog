@@ -10,22 +10,63 @@ from modelcluster.fields import ParentalKey
 from modelcluster.contrib.taggit import ClusterTaggableManager
 from taggit.models import TaggedItemBase
 
+from wagtail.documents.blocks import DocumentChooserBlock
+from wagtail.snippets.blocks import SnippetChooserBlock
+
+from django.contrib.contenttypes.fields import GenericRelation
+from wagtail.admin.panels import PublishingPanel
+from wagtail.models import DraftStateMixin, RevisionMixin, LockableMixin, PreviewableMixin
+
+from wagtail.search import index
+
 from wagtail.fields import StreamField
 from wagtail.blocks import (
     PageChooserBlock,
 )
 
 
-from wagtail.documents.blocks import DocumentChooserBlock
-from wagtail.snippets.blocks import SnippetChooserBlock
-
-
-class Author(models.Model):
+class Author(
+    PreviewableMixin, LockableMixin, DraftStateMixin, RevisionMixin, index.Indexed, models.Model
+):
     name = models.CharField(max_length=100)
     bio = models.TextField()
+    revisions = GenericRelation("wagtailcore.Revision", related_query_name="author")
+
+    panels = [
+        FieldPanel("name"),
+        FieldPanel("bio"),
+        PublishingPanel(),
+    ]
+
+    search_fields = [
+        index.FilterField("name"),
+        index.SearchField("name"),
+        index.AutocompleteField('name'),
+
+    ]
 
     def __str__(self):
         return self.name
+    
+    @property
+    def preview_modes(self):
+        return PreviewableMixin.DEFAULT_PREVIEW_MODES + [
+            ("dark_mode", "Dark Mode"),
+        ]
+    
+    def get_preview_template(self, request, mode_name):
+        template = {
+            "": "includes/author.html", # default
+            "dark_mode": "includes/author_dark_mode.html",
+        }
+        return template.get(mode_name, template[""])
+    
+    def get_preview_context(self, request, mode_name):
+        context = super().get_preview_context(request, mode_name)
+        if mode_name == "dark_mode":
+            context["dark_mode"] = True
+        context["warning"] = "This is a preview"
+        return context
 
 
 class BlogPageTag(TaggedItemBase):
@@ -54,7 +95,9 @@ class BlogIndex(Page):
         context["blogpages"] = BlogDetail.objects.live().public()
         return context
 
+
 from blocks import blocks as custom_blocks
+
 
 class BlogDetail(Page):
     # A blog entry page
@@ -70,15 +113,15 @@ class BlogDetail(Page):
 
     body = StreamField(
         [
-            ('info',custom_blocks.InfoBlock()),
+            ("info", custom_blocks.InfoBlock()),
             ("faq", custom_blocks.FAQListBlock()),
             ("image", custom_blocks.ImageBlock()),
             ("Doc", DocumentChooserBlock()),
             ("page", PageChooserBlock(required=False, page_type="home.HomePage")),
             ("author", SnippetChooserBlock("blogpages.Author")),
-            ('text', custom_blocks.TextBlock()),
-            ('carousel', custom_blocks.CarouselBlock()),
-            ("call_to_action_1",custom_blocks.CallToAction1()),
+            ("text", custom_blocks.TextBlock()),
+            ("carousel", custom_blocks.CarouselBlock()),
+            ("call_to_action_1", custom_blocks.CallToAction1()),
         ],
         block_counts={
             # 'text': {'min_num': 1},
@@ -87,6 +130,14 @@ class BlogDetail(Page):
         use_json_field=True,
         blank=True,
         null=True,
+    )
+
+    author = models.ForeignKey(
+        "blogpages.Author",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
     )
 
     image = models.ForeignKey(
@@ -102,6 +153,7 @@ class BlogDetail(Page):
         # FieldPanel('tags'),
         # FieldPanel('image'),
         FieldPanel("body"),
+        FieldPanel("author"),
     ]
 
     def clean(self):
