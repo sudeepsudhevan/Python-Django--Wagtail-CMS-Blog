@@ -194,3 +194,7 @@ WAGTAILDOCS_DOCUMENT_MODEL = "documents.CustomDocument"
 # WAGTAILDOCS_EXTENSIONS = ["pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "odt", "txt"]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+WAGTAIL_FRONTEND_LOGIN_TEMPLATE = 'login.html'
+
+PASSWORD_REQUIRED_TEMPLATE = 'password_required.html'

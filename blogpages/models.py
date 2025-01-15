@@ -59,6 +59,9 @@ from blocks import blocks as custom_blocks
 class BlogDetail(Page):
     # A blog entry page
 
+    # require a password to access below line if not commented
+    # password_required_template = "blogpages/password_in_here.html"
+
     parent_page_types = ["blogpages.BlogIndex"]
     subpage_types = []
 
