@@ -153,7 +153,7 @@ class BlogDetail(Page):
         # FieldPanel('tags'),
         # FieldPanel('image'),
         FieldPanel("body"),
-        FieldPanel("author"),
+        FieldPanel("author", permission='home.add_author'),
     ]
 
     def clean(self):
