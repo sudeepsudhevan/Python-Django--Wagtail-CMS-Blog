@@ -33,7 +33,7 @@ class Author(
     revisions = GenericRelation("wagtailcore.Revision", related_query_name="author")
 
     panels = [
-        FieldPanel("name"),
+        FieldPanel("name", permission='blogpages.can_edit_author_name'),
         FieldPanel("bio"),
         PublishingPanel(),
     ]
@@ -67,6 +67,11 @@ class Author(
             context["dark_mode"] = True
         context["warning"] = "This is a preview"
         return context
+    
+    class Meta:
+        permissions = [
+            ("can_edit_author_name", "Can edit author name"),
+        ]
 
 
 class BlogPageTag(TaggedItemBase):
